@@ -44,7 +44,7 @@ export const findUserById = async (req, res) => {
         //fetch user Id from request parameters
         const userId = req.params.userId;
 
-        //find the user corresponding to the email
+        //find the user corresponding to the id
         const existingUser = await User.findOne({userId: userId});
 
         //send the response as a json
@@ -55,4 +55,45 @@ export const findUserById = async (req, res) => {
         });
     }
 }
+
+//update a user
+export const updateUser=async (req,res)=>{
+    try{
+        //fetch user Id from request parameters
+        const userId = req.params.userId;
+
+        //get updated product data from request body
+        const userData=req.body;
+
+        //update the user corresponding to the id
+        const updatedUser=await User.updateOne({userId: userId},userData);
+
+        //send the respond
+        res.json(updatedUser);
+    }catch(error){
+        res.status(500).json({
+            "error": error.message
+        });
+    }
+}
+
+//delete an existing user
+export const deleteUser=async (req,res)=>{
+  try{
+      //fetch the userId from request parameters
+      const userId=req.params.userId;
+
+      //delete user corresponding to the id
+      await User.deleteOne({userId:userId});
+
+      res.json({
+          "message": "User deleted successfully"
+      });
+  }catch (error){
+      res.status(500).json({
+          "error": error.message
+      });
+  }
+}
+
 
