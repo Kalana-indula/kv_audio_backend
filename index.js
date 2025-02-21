@@ -8,6 +8,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import userRouter from "./routes/userRouter.js";
 import Counter from "./models/counter.js";
+import itemRouter from "./routes/itemRouter.js";
 
 //create an object of 'express'
 let app=express();
@@ -53,5 +54,6 @@ initializeCounter();
 
 //send api requests to the through routes
 app.use("/api/users",userRouter);
+app.use("/api/items",itemRouter);
 
 
