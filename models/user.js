@@ -1,7 +1,12 @@
 //importing mongoose
 import mongoose from 'mongoose';
+import Counter from "./counter.js";  //Import the counter model
 
 const userSchema=new mongoose.Schema({
+    userId:{
+        type:Number,
+        unique:true
+    },
     email:{
         type:String,
         required:true,
@@ -36,6 +41,19 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true,
         default:"location_link"
+    }
+});
+
+//Pre-save hook to generate userId using the Counter model
+userSchema.pre('save',async function(next){
+    if(this.isNew){
+        const counter=await Counter.findByIdAndUpdate(
+            {_id:'userId'},
+            {$inc:{sequence_value:1}},
+            {new:true,upsert:true}
+        );
+        this.userId=counter.sequence_value;
+        next();
     }
 });
 

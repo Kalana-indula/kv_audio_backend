@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 //import mongoose
 import mongoose from 'mongoose';
 import userRouter from "./routes/userRouter.js";
+import Counter from "./models/counter.js";
 
 //create an object of 'express'
 let app=express();
@@ -33,13 +34,22 @@ app.listen(3000,()=>{
     console.log("Server is running on port 3000");
 });
 
-// Test requests
-app.get("/",(req,res)=>{
-    console.log("This is a test get request");
-    res.json({
-        "messsage":"Hello World"
-    });
-});
+//initialize counter
+const initializeCounter= async ()=> {
+    try {
+        // Use findByIdAndUpdate with upsert: true to avoid duplicates
+        await Counter.findByIdAndUpdate(
+            { _id: 'userId' },
+            { $inc: { sequence_value: 0 } },  // Ensure sequence starts from 0
+            { new: true, upsert: true }  // If not found, create the document
+        );
+        console.log('Counter initialized or updated');
+    } catch (err) {
+        console.error('Error initializing counter:', err);
+    }
+}
+
+initializeCounter();
 
 //send api requests to the through routes
 app.use("/api/users",userRouter);
