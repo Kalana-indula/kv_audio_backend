@@ -1,5 +1,12 @@
 import express from 'express';
-import {deleteUser, findAllUsers, findUserById, registerUser, updateUser} from "../controller/userController.js";
+import {
+    deleteUser,
+    findAllUsers,
+    findUserById,
+    loginUser,
+    registerUser,
+    updateUser
+} from "../controller/userController.js";
 
 //creating a user object
 const userRouter=express.Router();
@@ -10,5 +17,6 @@ userRouter.get("/",findAllUsers);
 userRouter.get("/:userId",findUserById);
 userRouter.put("/:userId",updateUser);
 userRouter.delete("/:userId",deleteUser);
+userRouter.post("/login",loginUser);
 
 export default userRouter;

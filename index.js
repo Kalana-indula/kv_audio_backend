@@ -1,14 +1,14 @@
-//import express
-import express from 'express';
-
-//importing body parser
-import bodyParser from 'body-parser';
-
-//import mongoose
-import mongoose from 'mongoose';
+import express from 'express';  //import express
+import bodyParser from 'body-parser'; //importing body parser
+import mongoose from 'mongoose'; //import mongoose
 import userRouter from "./routes/userRouter.js";
 import Counter from "./models/counter.js";
 import itemRouter from "./routes/itemRouter.js";
+import jwt from 'jsonwebtoken'; //import jsonwebtoken
+import dotenv from "dotenv"; //import dotenv
+
+//configure '.env' file
+dotenv.config();
 
 //create an object of 'express'
 let app=express();
@@ -16,8 +16,29 @@ let app=express();
 //Implement 'body-parser'
 app.use(bodyParser.json());
 
+//middleware to log all incoming requests
+app.use((req,res,next)=>{
+    let token=req.header("Authorization");
+
+    //check if token exists and remove 'Bearer' prefix if so
+    if(token!=null){
+        token=token.replace("Bearer ","");
+
+        // console.log(token);
+        //verify the token using the secret key provided
+        jwt.verify(token,process.env.JWT_SECRET,(error,decoded) => {
+            if(!error){
+                //create a new key - 'user' and assign decoded value
+                req.user=decoded;
+            }
+        });
+    }
+    //moving to next appropriate request
+    next();
+});
+
 //set up the mongoDB connection URL
-let mongoUrl="mongodb+srv://root:root@cluster0.6avps.mongodb.net/kv?retryWrites=true&w=majority&appName=Cluster0";
+let mongoUrl=process.env.MONGO_URL;
 
 //connect to the mongoDB cluster
 mongoose.connect(mongoUrl);

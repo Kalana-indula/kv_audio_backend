@@ -1,35 +1,93 @@
 import User from "../models/user.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+//configure env file
+dotenv.config();
 
 //saving a user
-export const registerUser = (req, res) => {
+export const registerUser = async (req, res) => {
+    try {
+        //fetch data from request body
+        const data = req.body;
 
-    //fetch data from request body
-    const data = req.body;
+        //encrypt password in request body
+        data.password = bcrypt.hashSync(data.password, 10);
 
-    //create a new user object
-    const newUser = new User(data);
+        //create a new user object
+        const newUser = new User(data);
 
-    newUser.save().then(() => {
-        res.json({
-            "message": "User saved successfully"
-        });
-    }).catch((error) => {
+        await newUser.save();
+
+        res.json(data);
+    } catch (err) {
         res.status(500).json({
-            "error": error.message
+            "message": "Error adding user",
+            "error": err.message
         });
-        console.log(error.message);
-    });
+        console.log(err);
+    }
+}
+
+//login with password validation
+export const loginUser = async (req, res) => {
+    try {
+        //fetch data from request body
+        const data = req.body;
+
+        //find existing user
+        const user = await User.findOne({email: data.email});
+
+        if (!user) {
+            res.status(404).json({
+                "message": "User not found"
+            });
+
+        } else {
+            //compare provided password and user password
+            const isPasswordCorrect = bcrypt.compareSync(data.password, user.password);
+
+            if (isPasswordCorrect) {
+                //generate jwt token
+                const token = jwt.sign({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role
+                }, process.env.JWT_SECRET);
+                //send token with jwt response
+                res.json({
+                    "message": "User logged in",
+                    token: token
+                });
+            } else {
+                res.status(401).json({
+                    "message": "Login failed, invalid password"
+                });
+            }
+        }
+    } catch (err) {
+        res.status(500).json({
+            "error": err.message
+        });
+    }
 }
 
 //get all students
 export const findAllUsers = async (req, res) => {
-
     try {
-        //find all available users
-        const users = await User.find();
+        if (checkIsAdmin(req)) {
+            //find all available users
+            const users = await User.find();
 
-        //send respond with fetched details
-        res.json(users);
+            //send respond with fetched details
+            res.json(users);
+        }else{
+            res.status(403).json({
+                "message":"You are unauthorized to perform this action"
+            });
+        }
     } catch (err) {
         res.status(500).json({
             "message": "Failed to find users",
@@ -57,20 +115,20 @@ export const findUserById = async (req, res) => {
 }
 
 //update a user
-export const updateUser=async (req,res)=>{
-    try{
+export const updateUser = async (req, res) => {
+    try {
         //fetch user Id from request parameters
         const userId = req.params.userId;
 
         //get updated product data from request body
-        const userData=req.body;
+        const userData = req.body;
 
         //update the user corresponding to the id
-        const updatedUser=await User.updateOne({userId: userId},userData);
+        const updatedUser = await User.updateOne({userId: userId}, userData);
 
         //send the respond
         res.json(updatedUser);
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             "error": error.message
         });
@@ -78,22 +136,46 @@ export const updateUser=async (req,res)=>{
 }
 
 //delete an existing user
-export const deleteUser=async (req,res)=>{
-  try{
-      //fetch the userId from request parameters
-      const userId=req.params.userId;
+export const deleteUser = async (req, res) => {
+    try {
+        //fetch the userId from request parameters
+        const userId = req.params.userId;
 
-      //delete user corresponding to the id
-      await User.deleteOne({userId:userId});
+        //delete user corresponding to the id
+        await User.deleteOne({userId: userId});
 
-      res.json({
-          "message": "User deleted successfully"
-      });
-  }catch (error){
-      res.status(500).json({
-          "error": error.message
-      });
-  }
+        res.json({
+            "message": "User deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            "error": error.message
+        });
+    }
 }
 
+//check if a user is an admin
+export const checkIsAdmin = (req) => {
+    let isAdmin = false;
+
+    if (req.user != null) {
+        if (req.user.role === "admin") {
+            isAdmin = true;
+        }
+    }
+    return isAdmin;
+}
+
+//check if a user is a customer
+export const checkIsCustomer = (req) => {
+    let isCustomer = false;
+
+    if (req.user != null) {
+        if (req.user.role === "customer") {
+            isCustomer = true;
+        }
+    }
+
+    return isCustomer;
+}
 
