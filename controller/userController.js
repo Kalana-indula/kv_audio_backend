@@ -54,7 +54,8 @@ export const loginUser = async (req, res) => {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    phone:user.phone
                 }, process.env.JWT_SECRET);
                 //send token with jwt response
                 res.json({

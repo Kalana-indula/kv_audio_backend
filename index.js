@@ -5,7 +5,8 @@ import userRouter from "./routes/userRouter.js";
 import Counter from "./models/counter.js";
 import itemRouter from "./routes/itemRouter.js";
 import jwt from 'jsonwebtoken'; //import jsonwebtoken
-import dotenv from "dotenv"; //import dotenv
+import dotenv from "dotenv";
+import inquiryRouter from "./routes/inquiryRouter.js"; //import dotenv
 
 //configure '.env' file
 dotenv.config();
@@ -76,5 +77,6 @@ initializeCounter();
 //send api requests to the through routes
 app.use("/api/users",userRouter);
 app.use("/api/items",itemRouter);
+app.use("/api/inquiries",inquiryRouter);
 
 
