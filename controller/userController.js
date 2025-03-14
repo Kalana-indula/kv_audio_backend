@@ -180,3 +180,8 @@ export const checkIsCustomer = (req) => {
     return isCustomer;
 }
 
+/* customer user
+    "email": "indula12@example.com",
+    "password": "12345"
+ */
+
