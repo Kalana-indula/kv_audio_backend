@@ -5,8 +5,9 @@ import userRouter from "./routes/userRouter.js";
 import Counter from "./models/counter.js";
 import itemRouter from "./routes/itemRouter.js";
 import jwt from 'jsonwebtoken'; //import jsonwebtoken
-import dotenv from "dotenv";
-import inquiryRouter from "./routes/inquiryRouter.js"; //import dotenv
+import dotenv from "dotenv";//import dotenv
+import inquiryRouter from "./routes/inquiryRouter.js";
+import reviewRouter from "./routes/reviewRouter.js";
 
 //configure '.env' file
 dotenv.config();
@@ -78,5 +79,6 @@ initializeCounter();
 app.use("/api/users",userRouter);
 app.use("/api/items",itemRouter);
 app.use("/api/inquiries",inquiryRouter);
+app.use("/api/reviews",reviewRouter);
 
 

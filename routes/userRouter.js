@@ -11,7 +11,7 @@ import {
 //creating a user object
 const userRouter=express.Router();
 
-//call 'regusterUser' to save a new user
+//call 'registerUser' to save a new user
 userRouter.post("/",registerUser);
 userRouter.get("/",findAllUsers);
 userRouter.get("/:userId",findUserById);
